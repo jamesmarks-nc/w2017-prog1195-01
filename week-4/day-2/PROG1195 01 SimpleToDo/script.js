@@ -1,57 +1,56 @@
 
+// For displaying output
 var outputTextbox = document.getElementById("txtOutput");
+
+// For getting input
 var toDoTextbox = document.getElementById('txtToDo');
 var completeTextbox = document.getElementById('txtComplete');
 
-
+// Sample data - parallel arrays
 var toDoList = [ "Take out trash", "Do laundry" ];
-var toDoDone = [ true, false ];
+var toDoDone = [ false, false ];
 
 function addTodo() {
+  
+  	// grabbing user input
+  	var newToDo = toDoTextbox.value;
  
-	var userInput = toDoTextbox.value;
+ 	// add to our array
+ 	toDoList[toDoList.length] = newToDo;
+ 	toDoDone[toDoDone.length] = false;
 
-	toDoList[toDoList.length] = userInput;
-	toDoDone[toDoDone.length] = false;
+ 	toDoTextbox.value = "";
 
-	listToDos();
- 
+ 	listToDos();
+
 }
 
 function markComplete() {
+	var doneToDo = completeTextbox.value;
 
-	var completeInput = completeTextbox.value;
-
-	var i = 0; // Initialize
-
-	while (i < toDoList.length) { // Test
-
-		if(toDoList[i] === completeInput) {
-			toDoDone[i] = true;
-			break; // Exit the loop.
+	for(var index = 0; index < toDoList.length; index++) {
+		if(toDoList[index].toLowerCase() === doneToDo.toLowerCase()) {
+			toDoDone[index] = true;
+			break;
 		}
-
-		i++; // Increment / "change"
 	}
- 
+
+	completeTextbox.value = "";
+
+ 	listToDos();
+
 }
 
 function listToDos() {
 
 	outputTextbox.value = "";
+	// Initialize, Test, Increment
+	for (var i = 0; i < toDoList.length; i = i + 1) {
 
-	for (var i = 0; i < toDoList.length; i += 1) {
+		var doneText = toDoDone[i] ? "[X]" : "[ ]";
 
-		// TODO: Show ternary operator.
-		var done = "[Incomplete]";
-
-		if(toDoDone[i] === true) {
-			done = "[Finished]";
-		}
-
-		// Add todo item to output textbox.
-		outputTextbox.value += toDoList[i]
-							+ ' ' + done + '\n';
+		outputTextbox.value += doneText + ' ' + toDoList[i] + '\n';
+	
 	}
  
 }
@@ -59,46 +58,63 @@ function listToDos() {
 
 function clearDone() {
 
-	// This is last... above and beyond
-	// TODO: Record completion for PROG1195 02
+	// two new arrays to hold only unfinished todo information
+	var newList = [];
+	var newDone = [];
+
+	var i = 0; // Initialize control (counter) variable 
+	while(i < toDoDone.length) { // Test control variable
+
+		if(toDoDone[i] === false) {
+			newList[newList.length] = toDoList[i];
+			newDone[newDone.length] = false;
+		}
+
+		i = i + 1; // Change (increment) control variable
+	}
+
+	// replace old lists (arrays) with the new lists (arrays).
+	toDoList = newList;
+	toDoDone = newDone;
+
+	// re-render our list
+	listToDos();
 
 }
 
 function quickSort() {
 
-	// create a temporary array to hold the new order
-	var tempArray = [];
-	var tempDone = [];
+	// two new arrays to hold sorted todo information
+	var newList = [];
+	var newDone = [];
 
-	for (var i = 0; i < toDoList.length; i++) {
+	// loop through original arrays finding completed todos and put them
+	// at the top of the new list
+	for(var i = 0; i < toDoList.length; i++) {
 		if(toDoDone[i] === true) {
-			tempArray[tempArray.length] = toDoList[i];
-			tempDone[tempDone.length] = toDoDone[i];
+			newList[newList.length] = toDoList[i];
+			newDone[newDone.length] = toDoDone[i];
 		}
 	}
 
-	for (var count = 0; count < toDoList.length; count++) {
-		if(toDoDone[count] === false) {
-			tempArray[tempArray.length] = toDoList[count];
-			tempDone[tempDone.length] = toDoDone[count];
+	// loop through original arrays finding incomplete todos and put them
+	// at the bottom of the new list
+	for(var i = 0; i < toDoList.length; i++) {
+		if(toDoDone[i] === false) {
+			newList[newList.length] = toDoList[i];
+			newDone[newDone.length] = toDoDone[i];
 		}
 	}
 
-	toDoList = tempArray;
-	toDoDone = tempDone;
+	// reassign our original arrays to use the new sorted lists.
+	toDoDone = newDone;
+	toDoList = newList;
 
+	// re-render our todo list to the textbox.
+	listToDos();
+ 
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+listToDos();
