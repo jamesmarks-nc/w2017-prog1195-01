@@ -2,7 +2,7 @@
 var level0 = {
   width: 10,
   height: 10,
-  spawnRate: 100,
+  spawnRate: 80,
   playerStart: { x: 1, y: 1 }
 };
 level0.mapData = [

@@ -22,7 +22,7 @@ let gridWidth = 20;
 let gridHeight = 30;
 
 // Player will stay the same as long as page exists.
-const player = { x: 1, y: 1, score: 0, isGameOver: false };
+const player = { x: 1, y: 1, score: 0, lives: 3, isGameOver: false };
 // Enemies will be reinitialized each time a level is loaded.
 let enemies = []; // array of { x: int, y: int, d: char } -> d is direction in ("U", "D", "L", "R")
 
@@ -186,6 +186,9 @@ function movePlayer(position) { // position must have an x and a y property
     // TODO: check if player won and respond.
     checkWin();
   }
+  if(enemyIsAt(position.x, position.y)) {
+    die("Walked into fire.");
+  }
   // move all the enemies
   for(var i in enemies) {
     moveEnemy(i);
@@ -216,6 +219,20 @@ function movePlayer(position) { // position must have an x and a y property
 function updatePlayerScore(newScore) {
   player.score = newScore;
   document.getElementById("player-score").innerText = newScore;
+}
+
+function die(how) {
+  player.lives -= 1;
+  if(player.lives === 0) {
+    console.log("Game over from dying!!!!");
+    gameOver(how);
+  } else {
+    console.log("Continue from dying!!!!");
+    drawText("Died", "continue?");
+    restartButton.disabled = false;
+    continueButton.disabled = false;
+    player.isGameOver = true;
+  }
 }
 
 function gameOver(how) {
@@ -274,6 +291,21 @@ function drawText(title, subtitle) {
 
 }
 
+function continueClick() {
+  var food = mapData.filter(function(element) {
+    return element === FOOD;
+  });
+  if(food.length === 0) {
+    nextLevel();
+  } else {
+    enemies = [];
+    player.x = LEVEL.playerStart.x;
+    player.y = LEVEL.playerStart.y;
+    drawBoard();
+    player.isGameOver = false;
+  }
+}
+
 // start next level
 function nextLevel() {
   loadLevel(LEVEL.nextLevel);
@@ -322,8 +354,10 @@ function moveEnemy(enemyIndex) {
       var directions = getAvailableDirections(enemy.x, enemy.y);
       var index = Math.floor(Math.random() * directions.length);
       enemy.d = directions[index];
+    } else if(playerIsAt(nextSquare.x, nextSquare.y)) {
+      // TODO: if the player is there, it's game over time.
+      die("Enemy ate Player.");
     }
-    // TODO: if the player is there, it's game over time.
     
   } while(nextSquareData !== NOTHING && nextSquareData !== FOOD); // Until its a square the enemy is allowed to walk on.
 
@@ -339,9 +373,13 @@ function playerIsAt(x, y) {
 
 // check if an enemy is on a given square
 function enemyIsAt(x, y) {
-  var isEnemy = false;
-  // TODO: loop through enemies. 
-  return isEnemy;
+  for(var i = 0; i < enemies.length; i++) {
+    var enemy = enemies[i];
+    if(enemy.x === x && enemy.y === y) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // check which directions you can go from a given position (this function is imperfect)
@@ -381,7 +419,7 @@ document.onkeydown = function(e) {
 
 // html button even handlers.
 restartButton.onclick = restart;
-continueButton.onclick = nextLevel;
+continueButton.onclick = continueClick;
 
 // load the first level >>> loadLevel()
 loadLevel(level0);
